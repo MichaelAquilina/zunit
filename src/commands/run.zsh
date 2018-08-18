@@ -17,6 +17,7 @@ function _zunit_run_usage() {
   echo "      --verbose          Prints full output from each test"
   echo "      --output-text      Print results to a text log, in TAP compatible format"
   echo "      --output-html      Print results to a HTML page"
+  echo "      --output-xml       Prints results to an XML log, in JUnit compatible format"
   echo "      --allow-risky      Supress warnings generated for risky tests"
   echo "      --time-limit <n>   Set a time limit of n seconds for each test"
 }
@@ -57,6 +58,7 @@ function _zunit_output_results() {
 
   [[ -n $output_text ]] && echo "TAP report written at $PWD/$logfile_text"
   [[ -n $output_html ]] && echo "HTML report written at $PWD/$logfile_html"
+  [[ -n $output_xml ]] && echo "JUnit XML report written at $PWD/$logfile_xml"
 }
 
 ###
@@ -435,7 +437,7 @@ function _zunit_parse_argument() {
 function _zunit_run() {
   local -a arguments testfiles
   local fail_fast tap allow_risky verbose
-  local output_text logfile_text output_html logfile_html
+  local output_text logfile_text output_html logfile_html output_xml logfile_xml
 
   # Load the datetime module, and record the start time
   zmodload zsh/datetime
@@ -449,6 +451,7 @@ function _zunit_run() {
     -verbose=verbose \
     -output-text=output_text \
     -output-html=output_html \
+    -output-xml=output_xml \
     -allow-risky=allow_risky \
     -time-limit:=time_limit
 
@@ -471,7 +474,7 @@ function _zunit_run() {
   fi
 
   # Text output has been requested
-  if [[ -n $output_text || -n $output_html ]]; then
+  if [[ -n $output_text || -n $output_html || -n $output_xml ]]; then
     # Make sure we have a config file, otherwise we can't determine
     # which directory to write logs to
     if [[ $missing_config -eq 1 ]]; then
@@ -485,6 +488,13 @@ function _zunit_run() {
       echo $(color red 'Output directory must be specified in .zunit.yml')
       exit 1
     fi
+  fi
+
+  if [[ -n $output_xml ]]; then
+    # Set the log filepath
+    logfile_xml="$zunit_config_directories_output/output.xml"
+
+    _zunit_xml_header > $logfile_xml
   fi
 
   if [[ -n $output_text ]]; then
@@ -579,6 +589,7 @@ function _zunit_run() {
   [[ -n $tap ]] && echo "1..$total"
   [[ -n $output_text ]] && echo "1..$total" >> $logfile_text
   [[ -n $output_html ]] && _zunit_html_footer >> $logfile_html
+  [[ -n $output_xml ]] && _zunit_xml_footer >> $logfile_xml
 
   # Output results to screen and kill the progress indicator
   [[ -z $tap ]] && _zunit_output_results && revolver stop

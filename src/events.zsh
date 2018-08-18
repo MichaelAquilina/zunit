@@ -28,6 +28,14 @@ function _zunit_fail_shutdown() {
     _zunit_html_footer >> $logfile_html
   fi
 
+  # If a XML report has been requested, then print
+  # the end of the HTML report
+  if [[ -n $output_xml ]]; then
+    name='Execution halted after failure'
+    _zunit_xml_error >> $logfile_xml
+    _zunit_xml_footer >> $logfile_xml
+  fi
+
   # Return a error exit code
   exit 1
 }
@@ -39,6 +47,7 @@ function _zunit_success() {
   # Write to reports
   [[ -n $output_text ]] && _zunit_tap_success "$@" >> $logfile_text
   [[ -n $output_html ]] && _zunit_html_success "$@" >> $logfile_html
+  [[ -n $output_xml ]] && _zunit_xml_success "$@" >> $logfile_xml
 
   passed=$(( passed + 1 ))
 
@@ -61,6 +70,7 @@ function _zunit_failure() {
   # Write to reports
   [[ -n $output_text ]] && _zunit_tap_failure "$@" >> $logfile_text
   [[ -n $output_html ]] && _zunit_html_failure "$@" >> $logfile_html
+  [[ -n $output_xml ]] && _zunit_xml_failure "$@" >> $logfile_xml
 
   if [[ -n $tap ]]; then
     _zunit_tap_failure "$@"
@@ -84,6 +94,7 @@ function _zunit_error() {
   # Write to reports
   [[ -n $output_text ]] && _zunit_tap_error "$@" >> $logfile_text
   [[ -n $output_html ]] && _zunit_html_error "$@" >> $logfile_html
+  [[ -n $output_xml ]] && _zunit_xml_error "$@" >> $logfile_xml
 
   if [[ -n $tap ]]; then
     _zunit_tap_error "$@"
@@ -107,6 +118,7 @@ function _zunit_warn() {
   # Write to reports
   [[ -n $output_text ]] && _zunit_tap_warn "$@" >> $logfile_text
   [[ -n $output_html ]] && _zunit_html_warn "$@" >> $logfile_html
+  [[ -n $output_xml ]] && _zunit_xml_warm "$@" >> $logfile_xml
 
   if [[ -n $tap ]]; then
     _zunit_tap_warn "$@"
@@ -128,6 +140,7 @@ function _zunit_skip() {
   # Write to reports
   [[ -n $output_text ]] && _zunit_tap_skip "$@" >> $logfile_text
   [[ -n $output_html ]] && _zunit_html_skip "$@" >> $logfile_html
+  [[ -n $output_xml ]] && _zunit_xml_skip "$@" >> $logfile_xml
 
   if [[ -n $tap ]]; then
     _zunit_tap_skip "$@"

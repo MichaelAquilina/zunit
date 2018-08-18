@@ -23,6 +23,7 @@ function _zunit_usage() {
   echo "      --verbose      Prints full output from each test"
   echo "      --output-text  Print results to a text log, in TAP compatible format"
   echo "      --output-html  Print results to a HTML page"
+  echo "      --output-xml   Print results to an xml file, in JUnit compatible format"
   echo "      --allow-risky  Supress warnings generated for risky tests"
   echo "      --time-limit   Set a time limit in seconds for each test"
 }
